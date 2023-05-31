@@ -431,8 +431,11 @@ export class DebugConfigurationProvider implements vscode.DebugConfigurationProv
 
                 newConfig.name = configPrefix + compilerName + " " + this.buildAndDebugActiveFileStr();
                 newConfig.preLaunchTask = task.name;
+                const isCl: boolean = compilerName === "cl.exe";
                 if (newConfig.type === DebuggerType.cppdbg) {
                     newConfig.externalConsole = false;
+                } else if (isCl) {
+                    newConfig.console = "integratedTerminal";
                 } else {
                     newConfig.console = "externalTerminal";
                 }
@@ -450,7 +453,6 @@ export class DebugConfigurationProvider implements vscode.DebugConfigurationProv
                 if (task.isDefault) {
                     newConfig.isDefault = true;
                 }
-                const isCl: boolean = compilerName === "cl.exe";
                 newConfig.cwd = isWindows && !isCl && !process.env.PATH?.includes(path.dirname(compilerPath)) ? path.dirname(compilerPath) : "${fileDirname}";
 
                 // eslint-disable-next-line @typescript-eslint/no-misused-promises
@@ -475,7 +477,7 @@ export class DebugConfigurationProvider implements vscode.DebugConfigurationProv
                                 }
                             }
                             newConfig.type = DebuggerType.cppdbg;
-                        } else if (compilerName === "cl.exe") {
+                        } else if (isCl) {
                             newConfig.miDebuggerPath = undefined;
                             newConfig.type = DebuggerType.cppvsdbg;
                             return resolve(newConfig);
